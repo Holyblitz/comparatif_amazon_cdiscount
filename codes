@@ -1,0 +1,94 @@
+#Pour Cdiscount
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Import et nettoyage du CSV Cdiscount
+df_cdiscount = pd.read_csv("cdiscount_total.csv")
+
+# Nettoyage des ratings
+df_cdiscount["rating_clean"] = (
+    df_cdiscount["rating"]
+    .astype(str)
+    .str.replace(" ", "")
+    .str.replace(",", ".")
+    .str.split("/")
+    .str[0]
+)
+df_cdiscount["rating_clean"] = pd.to_numeric(df_cdiscount["rating_clean"], errors="coerce")
+
+# Supprime les lignes avec rating_clean NaN
+df_cdiscount_clean = df_cdiscount.dropna(subset=["rating_clean"])
+
+#Bar chart moyenne ratings par catégorie 
+grouped_cdiscount = df_cdiscount_clean.groupby("categorie")["rating_clean"].mean().reset_index()
+
+plt.figure(figsize=(12,6))
+plt.bar(grouped_cdiscount["categorie"], grouped_cdiscount["rating_clean"], color="skyblue")
+plt.xticks(rotation=45, ha='right')
+plt.title("Moyenne des ratings par catégorie (Cdiscount)")
+plt.xlabel("Catégorie")
+plt.ylabel("Moyenne des ratings")
+plt.tight_layout()
+plt.show()
+
+# Cdiscount : moyenne rating par catégorie
+df_cdiscount = pd.read_csv("cdiscount_total.csv")
+df_cdiscount_clean = df_cdiscount.dropna(subset=["rating"])
+
+grouped_cdiscount = df_cdiscount_clean.groupby("categorie")["rating"].mean().reset_index()
+
+plt.figure(figsize=(10,6))
+plt.bar(grouped_cdiscount["categorie"], grouped_cdiscount["rating"], color="skyblue")
+plt.xticks(rotation=45)
+plt.title("Moyenne des ratings par catégorie (Cdiscount)")
+plt.xlabel("Catégorie")
+plt.ylabel("Moyenne des ratings")
+plt.tight_layout()
+plt.show()
+
+#Pour Amazon
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# --------- 1. Top produits par nombre d'avis ----------
+df_products = pd.read_csv("_SELECT_product_id_COUNT_AS_nb_reviews_AVG_score_AS_avg_score_FR_202507051607.csv")
+print(df_products.head())
+
+plt.figure(figsize=(12,6))
+df_products.sort_values('nb_reviews', ascending=False, inplace=True)
+plt.bar(df_products['product_id'].astype(str).head(30), df_products['nb_reviews'].head(30), color='skyblue')
+plt.xlabel('Produit')
+plt.ylabel("Nombre d'avis")
+plt.title("Top 30 des produits avec le plus d'avis (Amazon)")
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.savefig("amazon_nb_reviews_per_product.png")
+plt.show()
+
+# --------- 2. Top produits par moyenne de score ----------
+plt.figure(figsize=(12,6))
+df_products.sort_values('avg_score', ascending=False, inplace=True)
+plt.bar(df_products['product_id'].astype(str).head(30), df_products['avg_score'].head(30), color='lightgreen')
+plt.xlabel('Produit')
+plt.ylabel("Moyenne des scores")
+plt.title("Top 30 des produits avec la meilleure moyenne (Amazon)")
+plt.xticks(rotation=90)
+plt.tight_layout()
+plt.savefig("amazon_avg_score_per_product.png")
+plt.show()
+
+# Chargement du CSV
+df_year = pd.read_csv("_SELECT_EXTRACT_YEAR_FROM_time_date_AS_annee_AVG_score_FROM_amaz_202507051606.csv")
+
+# Tracé du graphique
+plt.figure(figsize=(10,5))
+plt.plot(df_year['annee'], df_year['avg'], marker='o', color='coral')
+plt.title("Évolution de la moyenne des scores par année (Amazon)")
+plt.xlabel("Année")
+plt.ylabel("Moyenne des scores")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
